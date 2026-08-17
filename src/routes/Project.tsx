@@ -1,14 +1,82 @@
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { useI18n, imageAt } from "../i18n/context";
+import { useI18n, imageAt, type Project as ProjectRecord } from "../i18n/context";
 import { Eyebrow, Reveal, Rule } from "../components/primitives";
 import { Comparator } from "../components/Comparator";
 import { Lightbox } from "../components/Lightbox";
+import { SlideLayers, SlideRule, useSlides } from "../components/Slides";
+
+/**
+ * The project's photographs as one frame slid through, rather than a wall of
+ * thumbnails: drag it, arrow-key it, or pick a frame off the rule under it. The
+ * photograph itself opens full size, and closing that leaves the frame on
+ * whichever photograph the reader got to.
+ */
+function Gallery({ project }: { project: ProjectRecord }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState<number | null>(null);
+  const slides = useSlides(project.images, 0, "full");
+
+  const at = slides.current.index;
+  const count = project.images.length;
+  const caption = project.captions?.[at + 1];
+  const label = t.project.frames(count, project.ref);
+
+  return (
+    <Reveal>
+      <figure className="slider">
+        <button
+          type="button"
+          className="shot"
+          {...slides.handlers}
+          onClick={() => {
+            if (!slides.afterDrag()) setOpen(at);
+          }}
+          aria-label={t.lightbox.open(at + 1, count, caption)}
+        >
+          <span className="frame frame--zoom slider__frame">
+            <SlideLayers images={project.images} alt={caption ?? project.title} slides={slides} />
+          </span>
+        </button>
+
+        <SlideRule
+          images={project.images}
+          index={at}
+          captions={project.captions}
+          label={label}
+          onPick={slides.go}
+        />
+
+        <figcaption className="figcap">
+          <b>
+            <bdi dir="ltr">
+              {String(at + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
+            </bdi>
+          </b>
+          {caption ?? ""}
+        </figcaption>
+      </figure>
+
+      {open !== null && (
+        <Lightbox
+          images={project.images}
+          index={open}
+          captions={project.captions}
+          title={project.title}
+          onClose={() => {
+            slides.go(open);
+            setOpen(null);
+          }}
+          onIndex={setOpen}
+        />
+      )}
+    </Reveal>
+  );
+}
 
 export default function Project() {
   const { slug = "" } = useParams();
   const { t, projects, bySlug } = useI18n();
-  const [open, setOpen] = useState<number | null>(null);
 
   const project = bySlug(slug);
   if (!project) return <Navigate to="/work" replace />;
@@ -155,30 +223,7 @@ export default function Project() {
       {/* ------------------------------------------------------- gallery -- */}
       <section className="section wrap">
         <Eyebrow>{t.project.frames(project.images.length, project.ref)}</Eyebrow>
-
-        <div className="gallery">
-          {project.images.map((img, i) => {
-            const caption = project.captions?.[i + 1];
-            return (
-              <figure key={img.src} style={{ margin: 0 }}>
-                <button
-                  type="button"
-                  className="shot"
-                  onClick={() => setOpen(i)}
-                  aria-label={t.lightbox.open(i + 1, project.images.length, caption)}
-                >
-                  <span className="frame frame--zoom">
-                    <img src={img.thumb} width={img.w} height={img.h} alt={caption ?? ""} loading="lazy" decoding="async" />
-                  </span>
-                </button>
-                <figcaption className="figcap">
-                  <b><bdi dir="ltr">{String(i + 1).padStart(2, "0")}</bdi></b>
-                  {caption ?? ""}
-                </figcaption>
-              </figure>
-            );
-          })}
-        </div>
+        <Gallery project={project} />
       </section>
 
       {/* ---------------------------------------------------------- next -- */}
@@ -193,17 +238,6 @@ export default function Project() {
           </h2>
         </Link>
       </section>
-
-      {open !== null && (
-        <Lightbox
-          images={project.images}
-          index={open}
-          captions={project.captions}
-          title={project.title}
-          onClose={() => setOpen(null)}
-          onIndex={setOpen}
-        />
-      )}
     </>
   );
 }

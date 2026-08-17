@@ -2,23 +2,14 @@ import type { CSSProperties, ReactNode } from "react";
 import { useInView } from "../lib/hooks";
 import type { Media } from "../data/media";
 
+/* Ahmed's own AY mark, traced off the source artwork — one continuous
+   self-intersecting outline, not two letterforms, which is why it is a single
+   filled path rather than the stroked A + Y it reads as. Identical geometry
+   ships in public/favicon.svg and the PNG icons; edit all four together. */
 export function Monogram({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 92 104"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="11"
-      strokeLinejoin="miter"
-      strokeLinecap="butt"
-      aria-hidden="true"
-    >
-      {/* A */}
-      <path d="M6 86 L28 14 L50 86" />
-      {/* Y, with the descender Ahmed draws into his own mark */}
-      <path d="M56 14 L76 46" />
-      <path d="M78 14 L78 68 L59 98" />
+    <svg className={className} viewBox="0 0 423 385" fill="currentColor" aria-hidden="true">
+      <path d="M163 0L172 11L315 261L292 181L347 85L350 82L423 82L249 385L134 385L169 321L212 320L243 264L129 67L127 69L143 165L78 279L74 284L0 284Z" />
     </svg>
   );
 }

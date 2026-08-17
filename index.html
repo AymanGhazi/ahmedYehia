@@ -20,7 +20,23 @@
     <meta property="og:image" content="/media/hero.jpg" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" as="image" href="/media/hero.jpg" fetchpriority="high" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- The hero image is on the home route only, but this shell is served for
+         every URL — a static preload would pull 347 KB on /work, /contact and
+         every project page and never use it. Deciding here, during head parse,
+         keeps the head start on / and drops the fetch everywhere else. -->
+    <script>
+      if (location.pathname === "/" || location.pathname === "/index.html") {
+        var heroPreload = document.createElement("link");
+        heroPreload.rel = "preload";
+        heroPreload.as = "image";
+        heroPreload.href = "/media/hero.jpg";
+        heroPreload.fetchPriority = "high";
+        document.head.appendChild(heroPreload);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

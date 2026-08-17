@@ -88,12 +88,59 @@ To add one:
 same array. Pick a landscape image for `heroIndex`; the project header crops to
 3:2.
 
+## The work on the front page
+
+Every project sits on the landing page, in `#work`, in the order of the source
+PowerPoint — hand drawing, Lake View B:16 and B:96, the Creativity Design
+apartments, then the two Painite units. The `Work` tab in the header jumps to
+that section rather than loading a page; `projectsBase` in
+`src/data/projects.base.ts` is what holds the order.
+
+Each card slides through its own photographs where it stands. Drag or swipe the
+frame sideways, use the arrow keys once it has focus, or pick a tick off the rule
+under it — the rule is the read-out as well as the control, one tick per
+photograph with the one on screen lit, drawn like the dimension rules elsewhere on
+the site and spanning the frame whether the project runs to three photographs or
+thirty-three. The counter in the card meta says the same thing in figures. Nothing
+moves on its own: the card holds whatever frame it was left on.
+
+Sliding is deliberately cheap. The cover is the full-size image, everything slid
+to after it is the small copy the frame is sized for anyway, and only the frames
+either side of the current one are prefetched — and only once a card has been
+touched, so the landing page still asks for nine images.
+
+Clicking the photograph opens whatever frame is up as a quick look over the page.
+It takes arrow keys, a swipe, the edges of the frame, or the thumbnail rail along
+the bottom, and closes on escape or a click on the ground around the photograph.
+The next and previous frames are fetched while the current one is on screen, so a
+flip does not wait on the network. `Full project` in the bar is the way through to
+the project sheet for a reader who wants the specification, and so is the
+reference code under each card.
+
+A drag is not a click: passing 40px sideways slides the set and swallows the
+click that follows, so the quick look never opens behind a swipe.
+
+The project page gallery is the same mechanism at full width — one frame slid
+through instead of a wall of thumbnails, with the tick rule and the caption under
+it. It shows the whole photograph rather than cropping to a shape, so a landscape
+room and a portrait detail sit in the same frame on the ground the deck put them
+on, and it takes the full-size copies throughout rather than the small ones.
+Opening a frame full size and closing it again leaves the gallery on whichever
+photograph the reader got to.
+
+`components/Slides.tsx` holds all of it once: `useSlides` for the mechanics,
+`SlideLayers` for the two animated layers inside a frame, `SlideRule` for the
+ticks. The cards and the gallery differ only in what they wrap it in.
+
+`/work` is still the full index — the disclosure rows carrying scope, role and
+studio — and every project keeps its own page.
+
 ## Structure
 
 ```
 src/
   routes/       Home, Work, Project, Practice, Contact
-  components/   Header/Footer, ProjectIndex, Comparator, Lightbox, primitives
+  components/   Header/Footer, ProjectIndex, WorkQuickView, Slides, Comparator, Lightbox, primitives
   i18n/         strings (en + ar), language provider
   data/         profile, projects, media
   lib/          hooks, material swatches, contact links
@@ -131,9 +178,13 @@ Colour, spacing and type live entirely in the `:root` block of `index.css`.
 ## Accessibility
 
 Muted text meets AA against the ground. The comparator is a real `slider` with
-arrow-key control, the index rows are proper disclosure buttons, the lightbox
-handles escape and arrow keys, and everything animated is disabled under
-`prefers-reduced-motion`.
+arrow-key control, the index rows are proper disclosure buttons, the slide rules
+are groups of labelled buttons so a set can be worked through from the keyboard,
+the lightbox handles escape and arrow keys, names every thumbnail by its frame
+number and takes focus on open so the arrows do not also drive the set behind it
+(returning focus to whatever opened it on close), and
+everything animated is disabled under `prefers-reduced-motion` — including the
+jump to `#work`, which lands instantly rather than gliding.
 
 Scroll reveals use an IntersectionObserver. The clip that hides an element is
 applied to its *child*, never to the observed element — `clip-path` zeroes an

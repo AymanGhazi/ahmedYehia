@@ -4,11 +4,10 @@ import { media } from "../data/media";
 import { useI18n, imageAt } from "../i18n/context";
 import { Eyebrow, Reveal, Rule, Shot } from "../components/primitives";
 import { Comparator } from "../components/Comparator";
-
-const cardSpan = ["card--narrow", "card--wide", "card", "card"];
+import { WorkQuickView } from "../components/WorkQuickView";
 
 export default function Home() {
-  const { t, profile, featured, bySlug } = useI18n();
+  const { t, profile, projects, totalImages, bySlug } = useI18n();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -144,33 +143,21 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* ------------------------------------------------------ selected work */}
-      <section className="section wrap">
-        <Eyebrow>{t.home.selectedWork}</Eyebrow>
-
-        <div className="work-grid">
-          {featured.map((project, i) => (
-            <Reveal key={project.slug} className={cardSpan[i] ?? "card"} delay={i * 60}>
-              <Link className="card" to={`/work/${project.slug}`} style={{ gridColumn: "auto" }}>
-                <Shot image={imageAt(project, project.cardIndex)} alt={project.title} />
-                <div className="card__meta">
-                  <div>
-                    <h3 className="card__title">{project.title}</h3>
-                    <p className="card__sub">{project.subtitle}</p>
-                  </div>
-                  <bdi className="numeral" style={{ fontSize: "1.6rem", flex: "none" }} dir="ltr">
-                    {String(i + 1).padStart(2, "0")}
-                  </bdi>
-                </div>
-                <ul className="swatches" style={{ marginTop: 14 }} aria-label={t.project.materials}>
-                  {project.swatches.slice(0, 6).map((colour, n) => (
-                    <li key={project.materials[n]} style={{ background: colour }} title={project.materials[n]} />
-                  ))}
-                </ul>
-              </Link>
-            </Reveal>
-          ))}
+      {/* --------------------------------------------------------------- work */}
+      <section className="section wrap" id="work">
+        <div className="split" style={{ alignItems: "end", marginBottom: "clamp(26px, 4vw, 44px)" }}>
+          <div>
+            <Eyebrow>{t.work.eyebrow}</Eyebrow>
+            <h2 className="display display--mid" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.9rem)" }}>
+              {t.home.selectedWork}
+            </h2>
+          </div>
+          <p className="prose" style={{ maxWidth: "46ch" }}>
+            {t.work.blurb(projects.length, totalImages)}
+          </p>
         </div>
+
+        <WorkQuickView items={projects} />
 
         <p style={{ marginTop: "clamp(36px, 4.5vw, 60px)" }}>
           <Link className="btn" to="/work">

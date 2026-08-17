@@ -232,9 +232,11 @@ a {
   flex: none;
 }
 
+/* The mark is wider than tall (423:385) — height follows the ratio so the glyph
+   fills its box instead of being letterboxed inside a square. */
 .brand__mark {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  aspect-ratio: 423 / 385;
   flex: none;
 }
 
@@ -818,6 +820,71 @@ a {
   margin: 8px 0 0;
 }
 
+/* Quick view — on a card the photograph is a button that opens the project in
+   place, and the reference code beside it is the way through to the full sheet. */
+.quick {
+  display: block;
+  position: relative;
+  width: 100%;
+  text-align: start;
+  /* A sideways drag slides the set; the page keeps the vertical gesture. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.quick .frame {
+  margin-bottom: 11px;
+}
+
+.quick__badge {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-start: 12px;
+  padding: 6px 10px 5px;
+  background: rgba(10, 10, 9, 0.74);
+  border: 1px solid var(--rule-hi);
+  color: var(--ink);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 240ms var(--ease), transform 240ms var(--ease);
+}
+
+.quick:hover .quick__badge,
+.quick:focus-visible .quick__badge {
+  opacity: 1;
+  transform: none;
+}
+
+/* Nothing hovers on a phone, so the affordance has to be standing there. */
+@media (hover: none) {
+  .quick__badge {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.quick__ref {
+  flex: none;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--rule-hi);
+  padding-bottom: 2px;
+  transition: color 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.quick__ref:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
 /* ---------------------------------------------------------- comparator ---- */
 
 .compare {
@@ -1073,20 +1140,106 @@ a {
   color: var(--ink-2);
 }
 
-.gallery {
-  columns: 3;
-  column-gap: var(--gap);
+/* ---------------------------------------------------------- slides ---- */
+
+/* Each photograph is its own layer inside the frame, so one can leave while the
+   next arrives. The zoom on hover lives on the image, the slide on the layer —
+   they would fight over `transform` otherwise. */
+.slide {
+  position: absolute;
+  inset: 0;
 }
 
-.gallery > * {
-  break-inside: avoid;
-  margin-bottom: var(--gap);
+.slide[data-moving="true"] {
+  animation: slide-in 460ms var(--ease) both;
+}
+
+.slide[data-leaving="true"] {
+  animation: slide-out 460ms var(--ease) both;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(var(--shift));
+    opacity: 0.25;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(var(--shift));
+    opacity: 0.25;
+  }
+}
+
+/* Position in the set, drawn like a setting-out rule: one tick per frame, the
+   one on screen lit. Ticks are the click target as well as the read-out, and the
+   rule spans the frame whether the project runs to three photographs or
+   thirty-three — the ticks divide the run, they are not beads on a string. */
+.slide-rule {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 13px;
+}
+
+.slide-tick {
+  flex: 1 1 0;
+  height: 12px;
+  display: grid;
+  align-content: center;
+}
+
+.slide-tick::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background: var(--rule-hi);
+  transition: background 200ms var(--ease), height 200ms var(--ease);
+}
+
+.slide-tick:hover::after {
+  background: var(--ink-2);
+}
+
+.slide-tick[data-current="true"]::after {
+  height: 3px;
+  background: var(--ink);
+}
+
+/* The project gallery: one frame most of the page wide. It shows the whole
+   photograph rather than cropping to a shape — a landscape room and a portrait
+   detail sit in the same frame, on the ground the deck put them on. */
+.slider {
+  margin: 0;
+}
+
+.slider__frame {
+  aspect-ratio: 3 / 2;
+  max-height: 76vh;
+  margin-bottom: 11px;
+}
+
+.slider__frame img {
+  object-fit: contain;
 }
 
 .shot {
   display: block;
   width: 100%;
-  text-align: left;
+  text-align: start;
+  /* A sideways drag slides the set; the page keeps the vertical gesture. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .figcap {
@@ -1114,9 +1267,9 @@ a {
   z-index: 200;
   background: rgba(8, 8, 8, 0.97);
   display: grid;
-  grid-template-rows: 1fr auto;
-  padding: clamp(16px, 3vw, 44px);
-  gap: 18px;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  padding: clamp(12px, 2.6vw, 40px);
+  gap: 14px;
   overflow: hidden;
   animation: fade 240ms var(--ease);
 }
@@ -1127,12 +1280,124 @@ a {
   }
 }
 
-.lightbox img {
+.lightbox__stage {
+  position: relative;
+  display: grid;
+  min-height: 0;
+}
+
+.lightbox__stage > img {
   width: 100%;
   height: 100%;
   min-height: 0;
   object-fit: contain;
   margin: auto;
+}
+
+/* A wide edge on each side of the frame, so flipping through is one lazy click. */
+.lightbox__step {
+  position: absolute;
+  inset-block: 0;
+  width: clamp(48px, 9vw, 108px);
+  display: grid;
+  place-items: center;
+  font-size: 2.3rem;
+  line-height: 1;
+  color: var(--ink-2);
+  opacity: 0.5;
+  transition: opacity 200ms var(--ease), color 200ms var(--ease);
+}
+
+.lightbox__step:hover {
+  opacity: 1;
+  color: var(--ink);
+}
+
+.lightbox__step--prev {
+  inset-inline-start: 0;
+}
+
+.lightbox__step--next {
+  inset-inline-end: 0;
+}
+
+/* The chevrons are the one thing logical properties cannot mirror. */
+html[dir="rtl"] .lightbox__step span {
+  display: block;
+  transform: scaleX(-1);
+}
+
+/* The whole project as a filmstrip — the deck scrolled, not paged. */
+.lightbox__rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.lightbox__rail::-webkit-scrollbar {
+  display: none;
+}
+
+.lightbox__thumb {
+  flex: none;
+  width: clamp(50px, 6vw, 76px);
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--ground-2);
+  opacity: 0.4;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  transition: opacity 200ms var(--ease), outline-color 200ms var(--ease);
+}
+
+.lightbox__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lightbox__thumb:hover {
+  opacity: 0.85;
+}
+
+.lightbox__thumb[data-current="true"] {
+  opacity: 1;
+  outline-color: var(--ink);
+}
+
+/* On a phone the caption takes the line above the controls rather than fighting
+   them for it, and it holds to one line — the photograph is the point. */
+@media (max-width: 720px) {
+  .lightbox__bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .lightbox__bar > span {
+    flex: 1 0 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lightbox__nav {
+    flex: 1 0 100%;
+    justify-content: end;
+  }
+
+  .lightbox__bar button,
+  .lightbox__nav a {
+    padding: 8px 11px 7px;
+  }
+}
+
+/* On a laid-down phone the photograph needs the height more than the filmstrip. */
+@media (max-height: 560px) {
+  .lightbox__rail {
+    display: none;
+  }
 }
 
 .lightbox__bar {
@@ -1147,7 +1412,8 @@ a {
   text-transform: uppercase;
 }
 
-.lightbox__bar button {
+.lightbox__bar button,
+.lightbox__nav a {
   color: var(--ink);
   border: 1px solid var(--rule-hi);
   padding: 9px 15px 8px;
@@ -1158,7 +1424,8 @@ a {
   transition: background 200ms var(--ease), color 200ms var(--ease);
 }
 
-.lightbox__bar button:hover {
+.lightbox__bar button:hover,
+.lightbox__nav a:hover {
   background: var(--ink);
   color: var(--ground);
 }
@@ -1166,6 +1433,7 @@ a {
 .lightbox__nav {
   display: flex;
   gap: 8px;
+  flex: none;
 }
 
 /* -------------------------------------------------------------- footer ---- */
@@ -1389,8 +1657,8 @@ a {
     grid-template-columns: 1fr;
   }
 
-  .gallery {
-    columns: 2;
+  .slider__frame {
+    aspect-ratio: 4 / 3;
   }
 
   .cols-4 {
@@ -1454,8 +1722,8 @@ a {
 }
 
 @media (max-width: 620px) {
-  .gallery {
-    columns: 1;
+  .slider__frame {
+    aspect-ratio: 1 / 1;
   }
 
   .cols-4 {

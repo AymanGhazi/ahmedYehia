@@ -1,4 +1,4 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import { Monogram } from "./primitives";
 import { useHideOnScroll } from "../lib/hooks";
 import { isWhatsApp, phoneLinkProps } from "../lib/contact";
@@ -6,7 +6,9 @@ import { useI18n } from "../i18n/context";
 
 export function Header() {
   const hidden = useHideOnScroll();
+  const { pathname } = useLocation();
   const { t, profile, toggle, lang } = useI18n();
+  const onWork = pathname === "/" || pathname.startsWith("/work");
 
   return (
     <header className="header" data-hidden={hidden}>
@@ -21,7 +23,10 @@ export function Header() {
 
         <div className="header__right">
           <nav className="nav" aria-label={t.nav.work}>
-            <NavLink to="/work">{t.nav.work}</NavLink>
+            {/* The work sits on the front page — the tab jumps to it, no load. */}
+            <Link to="/#work" aria-current={onWork ? "page" : undefined}>
+              {t.nav.work}
+            </Link>
             <NavLink to="/practice">{t.nav.practice}</NavLink>
             <NavLink to="/contact" className="nav__cta">
               {t.nav.contact}

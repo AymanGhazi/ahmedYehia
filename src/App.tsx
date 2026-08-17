@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { Header, Footer } from "./components/Chrome";
-import { useSmoothScroll } from "./lib/hooks";
+import { reducedMotion, useSmoothScroll } from "./lib/hooks";
 import { useI18n } from "./i18n/context";
 import Home from "./routes/Home";
 import Work from "./routes/Work";
@@ -9,11 +9,24 @@ import Project from "./routes/Project";
 import Practice from "./routes/Practice";
 import Contact from "./routes/Contact";
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
+/**
+ * A new page starts at the top; a link carrying a hash goes to that section
+ * instead — the header floats over the content, so the target is offset clear
+ * of it. Keyed on the navigation, so tapping the same tab twice still moves.
+ */
+function ScrollToTarget() {
+  const { pathname, hash, key } = useLocation();
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [pathname]);
+    const target = hash ? document.getElementById(hash.slice(1)) : null;
+    if (!target) {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+      return;
+    }
+    const top = target.getBoundingClientRect().top + window.scrollY - 76;
+    window.scrollTo({ top, behavior: reducedMotion() ? ("instant" as ScrollBehavior) : "smooth" });
+  }, [pathname, hash, key]);
+
   return null;
 }
 
@@ -34,7 +47,7 @@ export default function App() {
 
   return (
     <>
-      <ScrollToTop />
+      <ScrollToTarget />
       <DocumentTitle />
       <Header />
       <main id="main">

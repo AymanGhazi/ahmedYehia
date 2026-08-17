@@ -40,6 +40,10 @@ export type UI = {
     studio: string;
     role: string;
     scope: string;
+    quickView: string;
+    photos: (n: number) => string;
+    quickOpen: (title: string, n: number) => string;
+    fullProject: string;
   };
 
   project: {
@@ -60,7 +64,14 @@ export type UI = {
 
   compare: { design: string; built: string; drag: string; hint: string };
 
-  lightbox: { prev: string; next: string; close: string; open: (i: number, n: number, caption?: string) => string };
+  lightbox: {
+    prev: string;
+    next: string;
+    close: string;
+    open: (i: number, n: number, caption?: string) => string;
+    jump: string;
+    full: string;
+  };
 
   practice: {
     eyebrow: string;
@@ -138,7 +149,7 @@ export const en: UI = {
     testHeadline: "Design against\nas built",
     testBody:
       "A render is a promise. The only question that matters on site is whether the room matches it — the same joint, the same reveal, the same shadow line. Drag the handle.",
-    selectedWork: "Selected work",
+    selectedWork: "All the work",
     fullIndex: "Full index",
     dayConsists: "What the day consists of",
   },
@@ -147,12 +158,16 @@ export const en: UI = {
     eyebrow: "Index",
     title: "Work",
     blurb: (projects, images) =>
-      `${projects} projects, ${images} photographs, drawings and renders. Residential finishing for private clients and international developers, plus the hand-drawing work that came first. Open a line to read the specification.`,
+      `${projects} projects, ${images} photos, in the order of the portfolio deck. Tap a photo for a quick look — it opens on this page.`,
     allProjects: "All projects",
     open: (ref) => `Open ${ref}`,
     studio: "Studio",
     role: "Role",
     scope: "Scope",
+    quickView: "Quick view",
+    photos: (n) => `${n} photos`,
+    quickOpen: (title, n) => `Quick view — ${title}, ${n} photos`,
+    fullProject: "Full project",
   },
 
   project: {
@@ -183,6 +198,8 @@ export const en: UI = {
     next: "Next",
     close: "Close",
     open: (i, n, caption) => `Open image ${i} of ${n}${caption ? `: ${caption}` : ""}`,
+    jump: "Jump to photo",
+    full: "Full project",
   },
 
   practice: {
@@ -277,7 +294,7 @@ export const ar: UI = {
     testHeadline: "التصميم مقابل\nما نُفِّذ",
     testBody:
       "الإظهار وعد. والسؤال الوحيد المهم في الموقع هو هل جاءت الغرفة مطابقة له — الفاصل نفسه، والغائر نفسه، وخط الظل نفسه. اسحب المقبض.",
-    selectedWork: "أعمال مختارة",
+    selectedWork: "كل الأعمال",
     fullIndex: "الفهرس الكامل",
     dayConsists: "مما يتكوّن يوم العمل",
   },
@@ -286,12 +303,16 @@ export const ar: UI = {
     eyebrow: "الفهرس",
     title: "الأعمال",
     blurb: (projects, images) =>
-      `${n(projects)} مشروعات، و${n(images)} صورة ورسمة وإظهاراً. تشطيبات سكنية لعملاء خاصين ومطورين عالميين، إضافة إلى أعمال الرسم اليدوي التي جاءت أولاً. افتح أي سطر لقراءة المواصفة.`,
+      `${n(projects)} مشروعات و${n(images)} صورة، بترتيب ملف العرض نفسه. اضغط أي صورة لعرض سريع — تفتح في الصفحة نفسها.`,
     allProjects: "كل المشروعات",
     open: (ref) => `افتح ${ref}`,
     studio: "الجهة",
     role: "الدور",
     scope: "النطاق",
+    quickView: "عرض سريع",
+    photos: (count) => `${n(count)} صورة`,
+    quickOpen: (title, count) => `عرض سريع — ${title}، ${n(count)} صورة`,
+    fullProject: "المشروع كاملاً",
   },
 
   project: {
@@ -322,6 +343,8 @@ export const ar: UI = {
     next: "التالي",
     close: "إغلاق",
     open: (i, total, caption) => `افتح الصورة ${n(i)} من ${n(total)}${caption ? `: ${caption}` : ""}`,
+    jump: "انتقل إلى صورة",
+    full: "المشروع كاملاً",
   },
 
   practice: {
