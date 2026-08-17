@@ -17,6 +17,10 @@ export type UI = {
     signRole: string;
     facts: string[];
     caption: { project: string; stage: string };
+    downloadCv: string;
+    downloadPortfolio: string;
+    /** Weight of the file, said next to the button so the tap is informed. */
+    pdfHint: (mb: number) => string;
   };
 
   home: {
@@ -139,6 +143,9 @@ export const en: UI = {
     signRole: "Architect — open to work abroad",
     facts: ["Est. 2018", "Eight years on site", "Nine projects"],
     caption: { project: "Reception & Master Suite", stage: "Design" },
+    downloadCv: "Download CV",
+    downloadPortfolio: "Download portfolio",
+    pdfHint: (mb) => `PDF · ${mb.toFixed(1)} MB`,
   },
 
   home: {
@@ -284,6 +291,9 @@ export const ar: UI = {
     signRole: "معماري — متاح للعمل بالخارج",
     facts: ["منذ ٢٠١٨", "ثماني سنوات في المواقع", "تسعة مشروعات"],
     caption: { project: "الاستقبال والجناح الرئيسي", stage: "تصميم" },
+    downloadCv: "تحميل السيرة الذاتية",
+    downloadPortfolio: "تحميل ملف الأعمال",
+    pdfHint: (mb) => `PDF · ${n(Math.round(mb * 10) / 10)} م.ب`,
   },
 
   home: {

@@ -457,6 +457,79 @@ a {
   opacity: 1;
 }
 
+/* The two downloads. They arrive after the sub-line has settled, so the cover
+   still reads as one movement rather than a form. */
+.hero__get {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  max-width: 440px;
+  margin-top: clamp(24px, 3vw, 38px);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 800ms var(--ease) 520ms, transform 800ms var(--ease) 520ms;
+}
+
+.hero[data-ready="true"] .hero__get {
+  opacity: 1;
+  transform: none;
+}
+
+/* Both share the row and end up the same width, so their edges line up under
+   the sub-line rather than raggedly. */
+.btn--get {
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 13px 20px 12px;
+}
+
+.btn__text,
+.btn__meta {
+  white-space: nowrap;
+}
+
+/* Inherited rather than a fixed grey: the solid variant inverts on hover, and
+   the file weight has to stay legible on both grounds. */
+.btn__meta {
+  font-size: var(--fs-micro);
+  font-weight: 450;
+  letter-spacing: 0.12em;
+  opacity: 0.58;
+}
+
+.btn--get .arrow--down {
+  margin-inline-start: auto;
+}
+
+.btn--solid {
+  background: var(--ink);
+  color: var(--ground);
+  border-color: var(--ink);
+}
+
+.btn--solid:hover {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+/* The horizontal flip that turns → into ← in Arabic does nothing for a ↓. */
+.arrow--down,
+[dir="rtl"] .arrow--down {
+  transform: none;
+}
+
+.btn--get:hover .arrow--down {
+  animation: nudge-down 620ms var(--ease);
+}
+
+@keyframes nudge-down {
+  50% {
+    transform: translateY(3px);
+  }
+}
+
 .hero__foot {
   display: flex;
   align-items: flex-end;
@@ -1180,6 +1253,49 @@ a {
   }
 }
 
+/* The one thing a reader has to be told is that the set moves at all, and the
+   arrows say it on the photograph rather than in a line of type under it. They
+   stand there whether or not anything is hovering — an affordance nobody has to
+   go looking for. The 11px discounted at the foot is the gap the frame leaves
+   for the rule, so the arrows centre on the photograph and not on the block. */
+.slide-stage {
+  position: relative;
+}
+
+.slide-arrow {
+  position: absolute;
+  inset-block: 0 11px;
+  margin-block: auto;
+  width: clamp(38px, 3.4vw, 46px);
+  height: clamp(38px, 3.4vw, 46px);
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--ink);
+  background: rgba(10, 10, 9, 0.74);
+  border: 1px solid var(--rule-hi);
+  backdrop-filter: blur(3px);
+  transition: background 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.slide-arrow--prev {
+  inset-inline-start: 12px;
+}
+
+.slide-arrow--next {
+  inset-inline-end: 12px;
+}
+
+.slide-arrow:hover {
+  background: rgba(10, 10, 9, 0.92);
+  border-color: var(--ink-3);
+}
+
+/* No flip here on purpose. ‹ and › are mirroring characters: the browser turns
+   each into the other once the run reads right to left, so the arrow already
+   points the way the set moves. Flipping them again turns them back. */
+
 /* Position in the set, drawn like a setting-out rule: one tick per frame, the
    one on screen lit. Ticks are the click target as well as the read-out, and the
    rule spans the frame whether the project runs to three photographs or
@@ -1321,11 +1437,8 @@ a {
   inset-inline-end: 0;
 }
 
-/* The chevrons are the one thing logical properties cannot mirror. */
-html[dir="rtl"] .lightbox__step span {
-  display: block;
-  transform: scaleX(-1);
-}
+/* Not flipped, for the reason set out at the slide arrows: ‹ and › mirror
+   themselves in a right-to-left run, and a second flip undoes that. */
 
 /* The whole project as a filmstrip — the deck scrolled, not paged. */
 .lightbox__rail {
@@ -1818,6 +1931,12 @@ html[dir="rtl"] .lightbox__step span {
     padding: 13px 14px 12px;
     letter-spacing: 0.06em;
   }
+
+  /* Side by side these two wrap into a ragged pair; stacked full-width they
+     stay one tap target each. */
+  .hero__get .btn--get {
+    flex: 1 1 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1839,7 +1958,8 @@ html[dir="rtl"] .lightbox__step span {
 
   .hero__big .ln > span,
   .hero__sub,
-  .hero__foot {
+  .hero__foot,
+  .hero__get {
     transform: none;
     opacity: 1;
   }

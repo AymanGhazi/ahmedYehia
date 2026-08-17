@@ -159,6 +159,39 @@ export function SlideLayers({
 }
 
 /**
+ * Nothing in a set moves on its own, so the one thing a reader has to be told is
+ * that it moves at all. The arrows say it on the photograph itself: floated over
+ * either edge, drawn in on a pointer, standing there on a touch screen.
+ *
+ * They are laid alongside the frame rather than inside it — the frame is already
+ * a button that opens the photograph, and a button cannot hold another one.
+ */
+export function SlideArrows({ move }: { move: (step: 1 | -1) => void }) {
+  const { t } = useI18n();
+
+  return (
+    <>
+      <button
+        type="button"
+        className="slide-arrow slide-arrow--prev"
+        onClick={() => move(-1)}
+        aria-label={t.lightbox.prev}
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button
+        type="button"
+        className="slide-arrow slide-arrow--next"
+        onClick={() => move(1)}
+        aria-label={t.lightbox.next}
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+    </>
+  );
+}
+
+/**
  * Position in the set, drawn like a setting-out rule: one tick per photograph,
  * the one on screen lit. The ticks are the control as well as the read-out.
  */

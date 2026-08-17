@@ -19,6 +19,25 @@ export default function Home() {
   const hero = media.hero[0];
   const portrait = media.ahmed[0];
 
+  /* Served from /public, so the href is the path and `download` names the file
+     the visitor ends up with — the source names carry spaces. */
+  const docs = [
+    {
+      href: "/docs/ahmed-yehia-portfolio.pdf",
+      file: "Ahmed Yehia — Portfolio.pdf",
+      label: t.hero.downloadPortfolio,
+      mb: 5.5,
+      solid: true,
+    },
+    {
+      href: "/docs/ahmed-yehia-cv.pdf",
+      file: "Ahmed Yehia — CV.pdf",
+      label: t.hero.downloadCv,
+      mb: 1.0,
+      solid: false,
+    },
+  ];
+
   return (
     <>
       {/* ------------------------------------------------------------ cover */}
@@ -33,6 +52,27 @@ export default function Home() {
               </span>
             </h1>
             <p className="hero__sub">{t.hero.sub}</p>
+
+            {/* The deck and the CV, before anything has to be scrolled for. */}
+            <div className="hero__get">
+              {docs.map((doc) => (
+                <a
+                  className={`btn btn--get${doc.solid ? " btn--solid" : ""}`}
+                  key={doc.href}
+                  href={doc.href}
+                  download={doc.file}
+                  type="application/pdf"
+                >
+                  <span className="btn__text">{doc.label}</span>
+                  <span className="btn__meta" dir="ltr">
+                    {t.hero.pdfHint(doc.mb)}
+                  </span>
+                  <span className="arrow arrow--down" aria-hidden="true">
+                    ↓
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
 
           <div className="hero__foot">

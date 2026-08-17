@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n, type Project } from "../i18n/context";
 import { Reveal } from "./primitives";
-import { SlideLayers, SlideRule, useSlides } from "./Slides";
+import { SlideArrows, SlideLayers, SlideRule, useSlides } from "./Slides";
 import { Lightbox } from "./Lightbox";
 
 /**
@@ -27,22 +27,26 @@ function QuickCard({ project, onOpen }: { project: Project; onOpen: (index: numb
 
   return (
     <div className="card" style={{ gridColumn: "auto" }}>
-      <button
-        type="button"
-        className="quick"
-        {...slides.handlers}
-        onClick={() => {
-          if (!slides.afterDrag()) onOpen(at);
-        }}
-        aria-label={t.work.quickOpen(project.title, count)}
-      >
-        <span className="frame frame--zoom">
-          <SlideLayers images={project.images} alt={project.title} slides={slides} />
-        </span>
-        <span className="quick__badge" aria-hidden="true">
-          {t.work.quickView}
-        </span>
-      </button>
+      <div className="slide-stage">
+        <button
+          type="button"
+          className="quick"
+          {...slides.handlers}
+          onClick={() => {
+            if (!slides.afterDrag()) onOpen(at);
+          }}
+          aria-label={t.work.quickOpen(project.title, count)}
+        >
+          <span className="frame frame--zoom">
+            <SlideLayers images={project.images} alt={project.title} slides={slides} />
+          </span>
+          <span className="quick__badge" aria-hidden="true">
+            {t.work.quickView}
+          </span>
+        </button>
+
+        <SlideArrows move={slides.move} />
+      </div>
 
       <SlideRule
         images={project.images}

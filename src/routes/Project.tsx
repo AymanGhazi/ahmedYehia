@@ -4,7 +4,7 @@ import { useI18n, imageAt, type Project as ProjectRecord } from "../i18n/context
 import { Eyebrow, Reveal, Rule } from "../components/primitives";
 import { Comparator } from "../components/Comparator";
 import { Lightbox } from "../components/Lightbox";
-import { SlideLayers, SlideRule, useSlides } from "../components/Slides";
+import { SlideArrows, SlideLayers, SlideRule, useSlides } from "../components/Slides";
 
 /**
  * The project's photographs as one frame slid through, rather than a wall of
@@ -25,19 +25,23 @@ function Gallery({ project }: { project: ProjectRecord }) {
   return (
     <Reveal>
       <figure className="slider">
-        <button
-          type="button"
-          className="shot"
-          {...slides.handlers}
-          onClick={() => {
-            if (!slides.afterDrag()) setOpen(at);
-          }}
-          aria-label={t.lightbox.open(at + 1, count, caption)}
-        >
-          <span className="frame frame--zoom slider__frame">
-            <SlideLayers images={project.images} alt={caption ?? project.title} slides={slides} />
-          </span>
-        </button>
+        <div className="slide-stage">
+          <button
+            type="button"
+            className="shot"
+            {...slides.handlers}
+            onClick={() => {
+              if (!slides.afterDrag()) setOpen(at);
+            }}
+            aria-label={t.lightbox.open(at + 1, count, caption)}
+          >
+            <span className="frame frame--zoom slider__frame">
+              <SlideLayers images={project.images} alt={caption ?? project.title} slides={slides} />
+            </span>
+          </button>
+
+          <SlideArrows move={slides.move} />
+        </div>
 
         <SlideRule
           images={project.images}
