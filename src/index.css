@@ -229,6 +229,7 @@ a {
   display: flex;
   align-items: center;
   gap: 13px;
+  flex: none;
 }
 
 .brand__mark {
@@ -260,6 +261,7 @@ a {
 }
 
 .nav a {
+  white-space: nowrap;
   font-size: var(--fs-nav);
   font-weight: 500;
   letter-spacing: 0.15em;
@@ -1416,10 +1418,13 @@ a {
     aspect-ratio: 4 / 5;
   }
 
+  /* minmax(0, …) rather than 1fr: a bare 1fr floors the track at the widest
+     unbreakable run — the email address — and the column then pushes the page
+     sideways. */
   .split,
   .cols-2,
   .footer__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .work-grid .card,
@@ -1474,6 +1479,10 @@ a {
     display: none;
   }
 
+  .header__in {
+    gap: 14px;
+  }
+
   .nav {
     gap: 14px;
   }
@@ -1481,6 +1490,10 @@ a {
   .nav a {
     font-size: 0.68rem;
     letter-spacing: 0.09em;
+  }
+
+  .nav__cta {
+    padding: 8px 11px 7px !important;
   }
 
   .hero__foot {
@@ -1498,9 +1511,44 @@ a {
   }
 }
 
-@media (max-width: 420px) {
+/* The wordmark is the first thing the header can afford to lose: below this the
+   nav, the CTA and the language switch need the whole line. */
+@media (max-width: 520px) {
   .brand__text {
     display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Three nav labels, a bordered CTA and the language switch have to clear a
+     320px screen — the header takes a tighter gutter and a smaller nav tier so
+     nothing is pushed off the edge. */
+  .header .wrap {
+    padding-inline: 14px;
+  }
+
+  .header__in {
+    gap: 10px;
+  }
+
+  .nav {
+    gap: 11px;
+  }
+
+  .nav a {
+    font-size: 0.63rem;
+    letter-spacing: 0.06em;
+  }
+
+  .nav__cta {
+    padding: 8px 8px 7px !important;
+  }
+
+  /* The email is one unbreakable run; tracking and padding are what make it
+     wider than the screen. */
+  .btn {
+    padding: 13px 14px 12px;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -1631,9 +1679,15 @@ html[lang="ar"] :not([dir="ltr"]):not([dir="ltr"] *) {
   display: flex;
   align-items: center;
   gap: clamp(14px, 1.8vw, 26px);
+  min-width: 0;
 }
 
+/* The switch is the one thing in the header that must never be squeezed out —
+   it is the only way back to the other language. It keeps its size and the nav
+   gives up room around it. */
 .langswitch {
+  flex: none;
+  position: relative;
   min-width: 42px;
   border: 1px solid var(--rule);
   padding: 8px 11px 7px;
@@ -1644,7 +1698,15 @@ html[lang="ar"] :not([dir="ltr"]):not([dir="ltr"] *) {
   letter-spacing: 0.08em;
   color: var(--ink-2);
   text-align: center;
+  white-space: nowrap;
   transition: color 220ms var(--ease), border-color 220ms var(--ease);
+}
+
+/* The drawn box stays small; the touch target does not. */
+.langswitch::after {
+  content: "";
+  position: absolute;
+  inset: -7px -6px;
 }
 
 .langswitch:hover {
@@ -1738,5 +1800,23 @@ html[lang="ar"] :not([dir="ltr"]):not([dir="ltr"] *) {
   .langswitch {
     min-width: 32px;
     padding: 6px 7px 5px;
+  }
+}
+
+/* A phone number plus its WHATSAPP tag is a single unbreakable line; on a
+   narrow screen it stacks instead of pushing the page sideways. */
+@media (max-width: 420px) {
+  .spec--contact {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+  }
+
+  .spec--contact dd + dt {
+    margin-top: 12px;
+  }
+
+  .phone-line {
+    flex-wrap: wrap;
+    gap: 4px 10px;
   }
 }
