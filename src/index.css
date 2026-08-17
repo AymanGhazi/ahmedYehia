@@ -457,13 +457,14 @@ a {
   opacity: 1;
 }
 
-/* The two downloads. They arrive after the sub-line has settled, so the cover
+/* The deck and the CV. They arrive after the sub-line has settled, so the cover
    still reads as one movement rather than a form. */
 .hero__get {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 14px;
-  max-width: 440px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(18px, 2.4vw, 26px);
+  max-width: 520px;
   margin-top: clamp(24px, 3vw, 38px);
   opacity: 0;
   transform: translateY(10px);
@@ -475,13 +476,74 @@ a {
   transform: none;
 }
 
-/* Both share the row and end up the same width, so their edges line up under
-   the sub-line rather than raggedly. */
-.btn--get {
-  flex: 1 1 auto;
-  align-items: baseline;
+/* Two separate offers per document, drawn as two separate buttons with real air
+   between them: reading it on the page is a quiet outline, taking the file away
+   is a filled block. Nothing about the pair should need working out. */
+.getrow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+.getrow__view,
+.getrow__get {
+  display: flex;
+  align-items: center;
   gap: 10px;
   padding: 13px 20px 12px;
+  font-size: var(--fs-nav);
+  font-weight: 550;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 260ms var(--ease), color 260ms var(--ease),
+    border-color 260ms var(--ease);
+}
+
+/* The second read. Outlined and only as wide as its words, so it sits behind
+   the filled block without disappearing — this is still how most people will
+   look at the deck first. */
+.getrow__view {
+  align-self: flex-start;
+  max-width: 100%;
+  border: 1px solid var(--rule-hi);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.getrow__view:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ground);
+}
+
+/* The file itself: the full width of the column, filled, arrow first, the word
+   said in full, the weight set at the far end. Nothing here is a segment of
+   anything else — it is the one control that hands something over. */
+.getrow__get {
+  flex-wrap: wrap;
+  padding-block: 16px 15px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--ground);
+}
+
+/* Pushed to the far end of the block, where a file size belongs. */
+.getrow__get .btn__meta {
+  margin-inline-start: auto;
+}
+
+.getrow__get:hover {
+  background: var(--ground);
+  color: var(--ink);
+}
+
+.getrow__get .arrow--down {
+  font-size: 1.15em;
+  line-height: 1;
 }
 
 .btn__text,
@@ -489,29 +551,13 @@ a {
   white-space: nowrap;
 }
 
-/* Inherited rather than a fixed grey: the solid variant inverts on hover, and
-   the file weight has to stay legible on both grounds. */
+/* Inherited rather than a fixed grey: the segment inverts on hover, and the
+   file weight has to stay legible on both grounds. */
 .btn__meta {
   font-size: var(--fs-micro);
   font-weight: 450;
   letter-spacing: 0.12em;
   opacity: 0.58;
-}
-
-.btn--get .arrow--down {
-  margin-inline-start: auto;
-}
-
-.btn--solid {
-  background: var(--ink);
-  color: var(--ground);
-  border-color: var(--ink);
-}
-
-.btn--solid:hover {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--ink);
 }
 
 /* The horizontal flip that turns → into ← in Arabic does nothing for a ↓. */
@@ -520,7 +566,7 @@ a {
   transform: none;
 }
 
-.btn--get:hover .arrow--down {
+.getrow__get:hover .arrow--down {
   animation: nudge-down 620ms var(--ease);
 }
 
@@ -1375,13 +1421,45 @@ a {
   flex: none;
 }
 
+/* ------------------------------------------------------------- overlay ---- */
+
+/* Every overlay closes from the same corner. The ground around the frame and
+   the escape key close it too, but neither of those is visible — this is the
+   one a visitor can see, and it is the size a thumb expects to hit. It carries
+   its own ground because it sits over the photograph, not beside it. */
+.overlay-x {
+  position: absolute;
+  z-index: 3;
+  inset-block-start: clamp(10px, 2.4vw, 34px);
+  inset-inline-end: clamp(10px, 2.4vw, 34px);
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--ink);
+  background: rgba(10, 10, 9, 0.74);
+  border: 1px solid var(--rule-hi);
+  backdrop-filter: blur(3px);
+  transition: background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.overlay-x:hover {
+  background: var(--ink);
+  color: var(--ground);
+  border-color: var(--ink);
+}
+
 /* ------------------------------------------------------------ lightbox ---- */
 
 .lightbox {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(8, 8, 8, 0.97);
+  /* Opaque, not near-opaque: the page behind is the same near-black, and at 97%
+     it ghosts through the photograph being looked at. */
+  background: #0a0a09;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto;
   padding: clamp(12px, 2.6vw, 40px);
@@ -1547,6 +1625,261 @@ a {
   display: flex;
   gap: 8px;
   flex: none;
+}
+
+/* ------------------------------------------------------------ document ---- */
+
+/* The deck read on the page: one rendered page filling the stage, a bar under
+   it, a rail of pages under that. Written for the phone first — the stage takes
+   whatever height is left after the two fixed rows, so the page is never pushed
+   off the bottom of a short screen. */
+.docview {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  /* Opaque, not near-opaque: the cover behind this is the same near-black, and
+     at 97% it ghosts through the page being read. */
+  background: #0a0a09;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  padding: clamp(10px, 2.4vw, 40px);
+  gap: clamp(10px, 1.4vw, 16px);
+  overflow: hidden;
+  animation: fade 240ms var(--ease);
+}
+
+/* The page is drawn at a multiple of the size it was fitted at, and the stage is
+   the window onto it — one at whole size, so the two are the same box and there
+   is nothing to scroll, more once it has been enlarged. Every gesture over it is
+   read in the reader itself, so `touch-action` hands the browser none of them:
+   a pinch has to be taken off it to be caught at all. */
+.docview__stage {
+  position: relative;
+  display: block;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: none;
+  --doc-scale: 1;
+}
+
+.docview__page {
+  position: relative;
+  display: grid;
+  width: calc(100% * var(--doc-scale));
+  height: calc(100% * var(--doc-scale));
+  touch-action: none;
+}
+
+.docview__page img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  margin: auto;
+  user-select: none;
+}
+
+/* The size itself is set on .docview__page above, from the same --doc-scale the
+   pinch writes; all that is left to say here is that an enlarged page can be
+   picked up. Touch stays off the browser — the pinch is caught in script, and
+   handing panning back to the box would swallow the second finger with it. */
+.docview__stage[data-zoom="true"] .docview__page {
+  cursor: grab;
+}
+
+.docview__stage[data-zoom="true"] .docview__page:active {
+  cursor: grabbing;
+}
+
+.docview__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ink-2);
+  font-size: var(--fs-micro);
+  font-weight: 450;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.docview__pager {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.docview__count {
+  min-width: 6ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.docview__meta {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-3);
+}
+
+.docview__nav {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+/* 44px minimum on every target in the bar — the size a thumb actually hits. */
+.docview__nav a,
+.docview__nav button,
+.docview__step {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding-inline: 15px;
+  color: var(--ink);
+  border: 1px solid var(--rule-hi);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 200ms var(--ease), color 200ms var(--ease);
+}
+
+.docview__step {
+  width: 44px;
+  padding-inline: 0;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.docview__step:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.docview__nav a:hover,
+.docview__nav button:hover,
+.docview__step:not(:disabled):hover {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+.docview__nav button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--ground);
+  border-color: var(--ink);
+}
+
+.docview__rail {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.docview__rail::-webkit-scrollbar {
+  display: none;
+}
+
+.docview__thumb {
+  flex: none;
+  width: clamp(58px, 7vw, 86px);
+  aspect-ratio: 16 / 9;
+  border: 1px solid transparent;
+  opacity: 0.42;
+  transition: opacity 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.docview__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.docview__thumb:hover {
+  opacity: 0.8;
+}
+
+.docview__thumb[data-current="true"] {
+  opacity: 1;
+  border-color: var(--ink);
+}
+
+.docview__icon {
+  display: none;
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+/* On a phone the rail is a second row of chrome eating the page it is meant to
+   help read, and the floating arrows sit on top of the slide rather than beside
+   it — a thumb swipes, and the pager in the bar says so. Everything that stays
+   has to fit one row across 390px without the last button falling off the end,
+   which is why the download says its word with an arrow instead. */
+@media (max-width: 700px) {
+  .docview__meta,
+  .docview .slide-arrow,
+  .docview__long {
+    display: none;
+  }
+
+  /* The X in the corner is the close button on a phone; a second one spelling
+     the word out is what pushes the row off the end of the screen. Named
+     through the bar because the rule that lays the bar out would outrank a
+     bare class and put it back. */
+  .docview__nav .docview__close,
+  .lightbox__nav .lightbox__close {
+    display: none;
+  }
+
+  .docview__icon {
+    display: block;
+  }
+
+  /* A 16:9 slide on a portrait phone leaves the screen mostly empty above and
+     below it. The rail costs nothing there and is the difference between
+     flicking through thirty-eight pages and swiping thirty-eight times. */
+  .docview__thumb {
+    width: 64px;
+  }
+
+  .docview__bar {
+    gap: 8px;
+  }
+
+  .docview__nav {
+    gap: 8px;
+  }
+
+  .docview__nav a,
+  .docview__nav button {
+    padding-inline: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  .docview__count {
+    min-width: 5ch;
+  }
+}
+
+/* A phone turned on its side has no spare height at all — the slide takes the
+   screen and the rail goes. */
+@media (max-height: 520px) {
+  .docview__rail {
+    display: none;
+  }
+
+  .docview {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
 }
 
 /* -------------------------------------------------------------- footer ---- */
@@ -1932,10 +2265,13 @@ a {
     letter-spacing: 0.06em;
   }
 
-  /* Side by side these two wrap into a ragged pair; stacked full-width they
-     stay one tap target each. */
-  .hero__get .btn--get {
-    flex: 1 1 100%;
+  /* Tracking is what makes these two run past the edge of a small screen; the
+     filled block keeps its full width and the size drops under the label when
+     the line will not hold both. */
+  .getrow__view,
+  .getrow__get {
+    padding-inline: 14px;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -2029,6 +2365,10 @@ html[lang="ar"] .eyebrow,
 html[lang="ar"] .label,
 html[lang="ar"] .nav a,
 html[lang="ar"] .btn,
+html[lang="ar"] .getrow__view,
+html[lang="ar"] .getrow__get,
+html[lang="ar"] .docview__nav a,
+html[lang="ar"] .docview__nav button,
 html[lang="ar"] .brand__text,
 html[lang="ar"] .spec dt,
 html[lang="ar"] .titleblock dt,
@@ -2206,5 +2546,75 @@ html[lang="ar"] :not([dir="ltr"]):not([dir="ltr"] *) {
   .phone-line {
     flex-wrap: wrap;
     gap: 4px 10px;
+  }
+}
+
+/* --------------------------------------------------------- back to top ---- */
+
+/* Held in the trailing bottom corner — right on the English page, left once the
+   page reads the other way — and it only comes up after a screen's worth has
+   gone by, so nothing floats over the hero. It fades and lifts rather than
+   appearing, and while it is down it takes no clicks. Styled off the slide
+   arrows so it reads as the same family of controls. */
+.totop {
+  position: fixed;
+  inset-block-end: clamp(18px, 3vw, 34px);
+  inset-inline-end: clamp(18px, 3vw, 34px);
+  z-index: 55;
+  width: clamp(42px, 3.4vw, 48px);
+  height: clamp(42px, 3.4vw, 48px);
+  display: grid;
+  place-items: center;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ground-3) 82%, transparent);
+  border: 1px solid var(--rule-hi);
+  backdrop-filter: blur(8px) saturate(1.1);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 320ms var(--ease), transform 320ms var(--ease),
+    background 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.totop[data-shown="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.totop:hover {
+  background: var(--ground-3);
+  border-color: var(--ink-3);
+}
+
+/* Same reasoning as the download arrow: the RTL flip is for → and ←, and does
+   nothing but confuse a ↑. */
+.arrow--up,
+[dir="rtl"] .arrow--up {
+  transform: none;
+}
+
+.totop:hover .arrow--up {
+  animation: nudge-up 620ms var(--ease);
+}
+
+@keyframes nudge-up {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Motion is the whole point of the lift, so a reader who has asked for less
+   gets the button plainly switched on and off. */
+@media (prefers-reduced-motion: reduce) {
+  .totop {
+    transform: none;
+    transition: opacity 1ms linear;
+  }
+
+  .totop:hover .arrow--up {
+    animation: none;
   }
 }

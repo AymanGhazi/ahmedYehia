@@ -47,19 +47,72 @@ export function useHideOnScroll(threshold = 140) {
   return hidden;
 }
 
+/** True once the page has been carried far enough down that the top is gone. */
+export function useScrolledPast(threshold = 700) {
+  const [past, setPast] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setPast(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+
+  return past;
+}
+
+type Lenis = {
+  raf: (time: number) => void;
+  destroy: () => void;
+  scrollTo: (
+    target: number | HTMLElement,
+    options?: { offset?: number; immediate?: boolean },
+  ) => void;
+};
+
+/** The momentum scroller, while it is running. */
+let momentum: Lenis | null = null;
+
+/**
+ * Every programmatic move down the page goes through here. Momentum scrolling
+ * keeps its own idea of where the page is and writes it back every frame, so a
+ * plain window.scrollTo is undone before it lands — the scroller has to be
+ * asked instead. Without it (or with motion turned down) it is the native call.
+ */
+export function scrollPageTo(target: number | HTMLElement, offset = 0) {
+  const immediate = reducedMotion();
+
+  if (momentum) {
+    momentum.scrollTo(target, { offset, immediate });
+    return;
+  }
+
+  const top =
+    (typeof target === "number" ? target : target.getBoundingClientRect().top + window.scrollY) +
+    offset;
+  window.scrollTo({ top, behavior: immediate ? ("instant" as ScrollBehavior) : "smooth" });
+}
+
 /** Momentum scrolling, skipped entirely when the visitor asks for less motion. */
 export function useSmoothScroll() {
   useEffect(() => {
     if (reducedMotion()) return;
-    let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
     let frame = 0;
     let cancelled = false;
 
     import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
-      lenis = new Lenis({ duration: 1.05, lerp: 0.1 });
+      /* The scroller takes the wheel off the document, which otherwise leaves
+         anything with its own scrollbar — a zoomed page in the reader, a rail of
+         thumbnails — dead under the wheel. It hands the gesture back when the
+         pointer is over a box that can take it. */
+      momentum = new Lenis({
+        duration: 1.05,
+        lerp: 0.1,
+        allowNestedScroll: true,
+      }) as unknown as Lenis;
       const loop = (time: number) => {
-        lenis?.raf(time);
+        momentum?.raf(time);
         frame = requestAnimationFrame(loop);
       };
       frame = requestAnimationFrame(loop);
@@ -68,7 +121,8 @@ export function useSmoothScroll() {
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
-      lenis?.destroy();
+      momentum?.destroy();
+      momentum = null;
     };
   }, []);
 }

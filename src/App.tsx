@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
-import { Header, Footer } from "./components/Chrome";
-import { reducedMotion, useSmoothScroll } from "./lib/hooks";
+import { Header, Footer, ToTop } from "./components/Chrome";
+import { scrollPageTo, useSmoothScroll } from "./lib/hooks";
 import { useI18n } from "./i18n/context";
 import Home from "./routes/Home";
 import Work from "./routes/Work";
@@ -23,8 +23,7 @@ function ScrollToTarget() {
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
       return;
     }
-    const top = target.getBoundingClientRect().top + window.scrollY - 76;
-    window.scrollTo({ top, behavior: reducedMotion() ? ("instant" as ScrollBehavior) : "smooth" });
+    scrollPageTo(target, -76);
   }, [pathname, hash, key]);
 
   return null;
@@ -61,6 +60,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <ToTop />
     </>
   );
 }

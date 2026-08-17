@@ -1,6 +1,6 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
 import { Monogram } from "./primitives";
-import { useHideOnScroll } from "../lib/hooks";
+import { scrollPageTo, useHideOnScroll, useScrolledPast } from "../lib/hooks";
 import { isWhatsApp, phoneLinkProps } from "../lib/contact";
 import { useI18n } from "../i18n/context";
 
@@ -45,6 +45,35 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+/**
+ * The way back up. It only stands there once a screen's worth has gone past —
+ * nothing to dodge at the top of a page — and it keeps to the trailing corner,
+ * so it sits under the thumb on a phone and out of the reading column on a desk.
+ */
+export function ToTop() {
+  const shown = useScrolledPast();
+  const { t } = useI18n();
+
+  return (
+    <button
+      type="button"
+      className="totop"
+      data-shown={shown}
+      /* Hidden means gone: no tab stop and nothing for a screen reader while
+         the page is already at the top. */
+      aria-hidden={!shown}
+      tabIndex={shown ? 0 : -1}
+      onClick={() => scrollPageTo(0)}
+      aria-label={t.toTop}
+      title={t.toTop}
+    >
+      <span className="arrow arrow--up" aria-hidden="true">
+        ↑
+      </span>
+    </button>
   );
 }
 

@@ -61,9 +61,13 @@ function* tokens(buf) {
       i++;
       while (i < n && depth > 0) {
         if (buf[i] === 0x5c) i += 2;
-        else if (buf[i] === 0x28) (depth++, i++);
-        else if (buf[i] === 0x29) (depth--, i++);
-        else i++;
+        else if (buf[i] === 0x28) {
+          depth++;
+          i++;
+        } else if (buf[i] === 0x29) {
+          depth--;
+          i++;
+        } else i++;
       }
     } else if (c === 0x3c && buf[i + 1] !== 0x3c) {
       while (i < n && buf[i] !== 0x3e) i++;
@@ -214,48 +218,6 @@ async function raw(buf, w, h) {
     .toColourspace("srgb")
     .raw()
     .toBuffer();
-}
-
-/** Luma plane at a fixed size — SSIM is defined on a single channel. */
-async function luma(buf, w, h) {
-  return await sharp(buf, { failOn: "none" })
-    .resize(w, h, { fit: "fill", kernel: "lanczos3" })
-    .removeAlpha()
-    .greyscale()
-    .raw()
-    .toBuffer();
-}
-
-/** Global mean SSIM over 8x8 windows, stride 4. */
-function ssim(a, b, w, h) {
-  const C1 = (0.01 * 255) ** 2;
-  const C2 = (0.03 * 255) ** 2;
-  const win = 8;
-  const stride = 4;
-  let total = 0;
-  let count = 0;
-  for (let y = 0; y + win <= h; y += stride) {
-    for (let x = 0; x + win <= w; x += stride) {
-      let sa = 0, sb = 0, saa = 0, sbb = 0, sab = 0;
-      for (let j = 0; j < win; j++) {
-        let idx = (y + j) * w + x;
-        for (let i = 0; i < win; i++, idx++) {
-          const va = a[idx];
-          const vb = b[idx];
-          sa += va; sb += vb; saa += va * va; sbb += vb * vb; sab += va * vb;
-        }
-      }
-      const n = win * win;
-      const ma = sa / n;
-      const mb = sb / n;
-      const va = saa / n - ma * ma;
-      const vb = sbb / n - mb * mb;
-      const cov = sab / n - ma * mb;
-      total += ((2 * ma * mb + C1) * (2 * cov + C2)) / ((ma * ma + mb * mb + C1) * (va + vb + C2));
-      count++;
-    }
-  }
-  return count ? total / count : 1;
 }
 
 function psnr(a, b) {

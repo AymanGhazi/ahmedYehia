@@ -9,6 +9,8 @@ export type UI = {
 
   nav: { work: string; practice: string; contact: string };
   brandRole: string;
+  /** Said on the button that carries the page back up. */
+  toTop: string;
 
   hero: {
     year: string;
@@ -17,10 +19,26 @@ export type UI = {
     signRole: string;
     facts: string[];
     caption: { project: string; stage: string };
+    /** What the document is called once it is open, as against the button. */
+    nameCv: string;
+    namePortfolio: string;
+    viewCv: string;
+    viewPortfolio: string;
     downloadCv: string;
     downloadPortfolio: string;
     /** Weight of the file, said next to the button so the tap is informed. */
     pdfHint: (mb: number) => string;
+  };
+
+  doc: {
+    close: string;
+    download: string;
+    /** Holds the page at full width so small print can be read on a phone. */
+    zoom: string;
+    fit: string;
+    jump: string;
+    page: (i: number, n: number) => string;
+    pageAlt: (title: string, i: number) => string;
   };
 
   home: {
@@ -135,6 +153,7 @@ export const en: UI = {
 
   nav: { work: "Work", practice: "Practice", contact: "Contact" },
   brandRole: "Architect · Finishing",
+  toTop: "Back to top",
 
   hero: {
     year: "2026",
@@ -143,9 +162,23 @@ export const en: UI = {
     signRole: "Architect — open to work abroad",
     facts: ["Est. 2018", "Eight years on site", "Nine projects"],
     caption: { project: "Reception & Master Suite", stage: "Design" },
+    nameCv: "CV",
+    namePortfolio: "Portfolio",
+    viewCv: "View CV",
+    viewPortfolio: "View portfolio",
     downloadCv: "Download CV",
     downloadPortfolio: "Download portfolio",
     pdfHint: (mb) => `PDF · ${mb.toFixed(1)} MB`,
+  },
+
+  doc: {
+    close: "Close",
+    download: "Download",
+    zoom: "Zoom",
+    fit: "Fit",
+    jump: "Jump to page",
+    page: (i, n) => `Page ${i} of ${n}`,
+    pageAlt: (title, i) => `${title} — page ${i}`,
   },
 
   home: {
@@ -283,6 +316,7 @@ export const ar: UI = {
 
   nav: { work: "الأعمال", practice: "الخبرة", contact: "تواصل" },
   brandRole: "معماري · تشطيبات",
+  toTop: "العودة إلى الأعلى",
 
   hero: {
     year: "٢٠٢٦",
@@ -291,9 +325,23 @@ export const ar: UI = {
     signRole: "معماري — متاح للعمل بالخارج",
     facts: ["منذ ٢٠١٨", "ثماني سنوات في المواقع", "تسعة مشروعات"],
     caption: { project: "الاستقبال والجناح الرئيسي", stage: "تصميم" },
+    nameCv: "السيرة الذاتية",
+    namePortfolio: "ملف الأعمال",
+    viewCv: "عرض السيرة الذاتية",
+    viewPortfolio: "عرض ملف الأعمال",
     downloadCv: "تحميل السيرة الذاتية",
     downloadPortfolio: "تحميل ملف الأعمال",
     pdfHint: (mb) => `PDF · ${n(Math.round(mb * 10) / 10)} م.ب`,
+  },
+
+  doc: {
+    close: "إغلاق",
+    download: "تحميل",
+    zoom: "تكبير",
+    fit: "ملء الشاشة",
+    jump: "الانتقال إلى صفحة",
+    page: (i, count) => `صفحة ${n(i)} من ${n(count)}`,
+    pageAlt: (title, i) => `${title} — صفحة ${n(i)}`,
   },
 
   home: {

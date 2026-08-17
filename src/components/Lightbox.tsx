@@ -103,6 +103,10 @@ export function Lightbox({
       ref={panel}
       onClick={groundClose}
     >
+      <button type="button" className="overlay-x" onClick={onClose} aria-label={t.lightbox.close}>
+        <span aria-hidden="true">✕</span>
+      </button>
+
       <div className="lightbox__stage" onClick={groundClose} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <img src={current.src} width={current.w} height={current.h} alt={caption ?? title} />
 
@@ -143,7 +147,7 @@ export function Lightbox({
           <button type="button" onClick={() => step(1)}>
             {t.lightbox.next}
           </button>
-          <button type="button" onClick={onClose}>
+          <button type="button" className="lightbox__close" onClick={onClose}>
             {t.lightbox.close}
           </button>
         </div>

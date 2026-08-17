@@ -5,10 +5,24 @@ import { useI18n, imageAt } from "../i18n/context";
 import { Eyebrow, Reveal, Rule, Shot } from "../components/primitives";
 import { Comparator } from "../components/Comparator";
 import { WorkQuickView } from "../components/WorkQuickView";
+import { DocViewer } from "../components/DocViewer";
+
+type Doc = {
+  href: string;
+  file: string;
+  view: string;
+  /** What it is called once open, as against the label on the button. */
+  name: string;
+  get: string;
+  /** Rendered pages, read on the site itself. */
+  pages: typeof media.deck;
+  mb: number;
+};
 
 export default function Home() {
   const { t, profile, projects, totalImages, bySlug } = useI18n();
   const [ready, setReady] = useState(false);
+  const [open, setOpen] = useState<Doc | null>(null);
 
   useEffect(() => {
     const id = setTimeout(() => setReady(true), 90);
@@ -20,21 +34,26 @@ export default function Home() {
   const portrait = media.ahmed[0];
 
   /* Served from /public, so the href is the path and `download` names the file
-     the visitor ends up with — the source names carry spaces. */
-  const docs = [
+     the visitor ends up with — the source names carry spaces. `pages` is the
+     same document rendered a page at a time, which is what the viewer reads. */
+  const docs: Doc[] = [
     {
       href: "/docs/ahmed-yehia-portfolio.pdf",
       file: "Ahmed Yehia — Portfolio.pdf",
-      label: t.hero.downloadPortfolio,
+      view: t.hero.viewPortfolio,
+      name: t.hero.namePortfolio,
+      get: t.hero.downloadPortfolio,
+      pages: media.deck,
       mb: 5.5,
-      solid: true,
     },
     {
       href: "/docs/ahmed-yehia-cv.pdf",
       file: "Ahmed Yehia — CV.pdf",
-      label: t.hero.downloadCv,
+      view: t.hero.viewCv,
+      name: t.hero.nameCv,
+      get: t.hero.downloadCv,
+      pages: media.cv,
       mb: 1.0,
-      solid: false,
     },
   ];
 
@@ -53,24 +72,38 @@ export default function Home() {
             </h1>
             <p className="hero__sub">{t.hero.sub}</p>
 
-            {/* The deck and the CV, before anything has to be scrolled for. */}
+            {/* The deck and the CV, before anything has to be scrolled for.
+                Two separate things are on offer for each and they are drawn as
+                two separate buttons: a quiet outline that reads it on the page,
+                and a filled block that puts the file on the visitor's machine.
+                The one that leaves with something is the loud one. */}
             <div className="hero__get">
               {docs.map((doc) => (
-                <a
-                  className={`btn btn--get${doc.solid ? " btn--solid" : ""}`}
-                  key={doc.href}
-                  href={doc.href}
-                  download={doc.file}
-                  type="application/pdf"
-                >
-                  <span className="btn__text">{doc.label}</span>
-                  <span className="btn__meta" dir="ltr">
-                    {t.hero.pdfHint(doc.mb)}
-                  </span>
-                  <span className="arrow arrow--down" aria-hidden="true">
-                    ↓
-                  </span>
-                </a>
+                <div className="getrow" key={doc.href}>
+                  <button
+                    type="button"
+                    className="getrow__view"
+                    aria-haspopup="dialog"
+                    onClick={() => setOpen(doc)}
+                  >
+                    <span className="btn__text">{doc.view}</span>
+                  </button>
+                  <a
+                    className="getrow__get"
+                    href={doc.href}
+                    download={doc.file}
+                    type="application/pdf"
+                    aria-label={`${doc.get} — ${t.hero.pdfHint(doc.mb)}`}
+                  >
+                    <span className="arrow arrow--down" aria-hidden="true">
+                      ↓
+                    </span>
+                    <span className="btn__text">{doc.get}</span>
+                    <span className="btn__meta" dir="ltr">
+                      {t.hero.pdfHint(doc.mb)}
+                    </span>
+                  </a>
+                </div>
               ))}
             </div>
           </div>
@@ -233,6 +266,17 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {open && (
+        <DocViewer
+          title={open.name}
+          pages={open.pages}
+          href={open.href}
+          file={open.file}
+          meta={t.hero.pdfHint(open.mb)}
+          onClose={() => setOpen(null)}
+        />
+      )}
     </>
   );
 }
